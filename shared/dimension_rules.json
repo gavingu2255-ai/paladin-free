@@ -1,0 +1,9 @@
+{
+  "slp": ["describe", "what is", "state"],
+  "wlm": ["space", "location", "video"],
+  "persona": ["your style", "your personality"],
+  "knowledge": ["why", "explain", "define"],
+  "metacog": ["how did you think", "check"],
+  "behavior": ["should you", "plan", "action"],
+  "wgp": ["story", "simulate", "generate world"]
+}

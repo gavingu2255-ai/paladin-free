@@ -1,0 +1,194 @@
+/* === Core Physical Layer === */
+body {
+    background: #0d0d0d;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    width: 95vw;
+    height: 90vh;
+    gap: 20px;
+    background: #151515;
+    padding: 20px;
+    border: 1px solid #333;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+}
+
+/* === Main Chat Session === */
+.main-session {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0; /* Prevents flex items from overflowing */
+}
+
+#chat-window {
+    flex-grow: 1;
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* === Messages === */
+.message {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    word-wrap: break-word;
+}
+
+.user {
+    align-self: flex-end;
+    background: #1a3a5a;
+    color: #4da3ff;
+    border: 1px solid #2a5a8a;
+}
+
+.assistant {
+    align-self: flex-start;
+    background: #222;
+    color: #eee;
+    border: 1px solid #444;
+}
+
+/* === Dimension Lights === */
+#lights {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: #111;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+.light {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #222; /* Off state */
+    border: 1px solid #444;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+}
+
+/* Active light glow */
+.light.active {
+    background: #4da3ff;
+    box-shadow: 0 0 12px #4da3ff, inset 0 0 4px white;
+    border-color: #80c4ff;
+}
+
+/* === Input Area === */
+.input-area {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex-grow: 1;
+    background: #000;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 12px;
+    border-radius: 6px;
+    outline: none;
+}
+
+input:focus { border-color: #4da3ff; }
+
+button {
+    background: #4da3ff;
+    color: #000;
+    border: none;
+    padding: 0 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+button:hover { opacity: 0.8; }
+
+/* === Sidebar & Control Panels === */
+.sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 350px;
+    height: 100%;
+}
+
+.control-panel {
+    flex: 1; /* Both Persona and Workflow take equal height */
+    background: #1a1a1a;
+    border: 1px solid #333;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Allows content to shrink/scroll inside */
+}
+
+.control-panel h3 {
+    margin: 0 0 10px 0;
+    color: #4da3ff;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.control-panel textarea {
+    flex-grow: 1;
+    background: #000;
+    color: #00ff41; /* Terminal Green */
+    font-family: 'Consolas', 'Courier New', monospace;
+    border: 1px solid #444;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    resize: none;
+    outline: none;
+    font-size: 0.85rem;
+}
+
+.control-panel textarea:focus {
+    border-color: #4da3ff;
+}
+
+.panel-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.panel-buttons button {
+    flex: 1;
+    background: #252525;
+    color: #ccc;
+    font-size: 0.8rem;
+    padding: 8px;
+    border: 1px solid #333;
+}
+
+.panel-buttons button:hover {
+    background: #353535;
+    color: #fff;
+}

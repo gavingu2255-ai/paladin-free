@@ -1,0 +1,150 @@
+{
+  "default": {
+    "world_graph": {
+      "nodes": [
+        {
+          "id": "ba8ad39f-25c8-4c6a-b7cb-ea70d70e9ebc",
+          "label": "Help"
+        },
+        {
+          "id": "a98802c3-b6fb-44a5-9260-032cf295ffbe",
+          "label": "me"
+        },
+        {
+          "id": "2a10d277-6111-498f-b402-b166d59412ee",
+          "label": "design"
+        },
+        {
+          "id": "c52ed265-78e5-4f64-8725-2bd250b0e7b9",
+          "label": "a"
+        },
+        {
+          "id": "3d87d909-9523-44c9-b2ef-c01443c00885",
+          "label": "3\u2011phase"
+        },
+        {
+          "id": "60c90af7-89f0-4968-b399-d2661576922c",
+          "label": "learning"
+        },
+        {
+          "id": "bf27a855-d60e-4d22-841f-6e7183ea9758",
+          "label": "plan"
+        },
+        {
+          "id": "83a04f9d-02cc-4a4a-9506-4e23ecb01601",
+          "label": "for"
+        },
+        {
+          "id": "e02a59b5-92b4-478e-a0bf-0b82a9a3485f",
+          "label": "Python,"
+        },
+        {
+          "id": "ff46f871-006b-4edb-94eb-175317e03b9d",
+          "label": "and"
+        },
+        {
+          "id": "6a9d4bce-87d9-41c5-8afa-5ee3e413386d",
+          "label": "speak"
+        },
+        {
+          "id": "5c8af558-7b71-469e-9b9d-d323ff224757",
+          "label": "in"
+        },
+        {
+          "id": "9de234a3-0754-419a-8c9e-e826f5eee644",
+          "label": "friendly"
+        },
+        {
+          "id": "a3f3332d-fc68-4f72-83f9-de56125ea1bd",
+          "label": "mentor"
+        },
+        {
+          "id": "203a20ab-05b5-46e7-bf85-57125467cf60",
+          "label": "persona."
+        },
+        {
+          "id": "a617640e-702c-45b3-bc15-f84fd765eea2",
+          "label": "Also"
+        },
+        {
+          "id": "3a17082b-b7f1-4878-a97e-5f429b6e0638",
+          "label": "store"
+        },
+        {
+          "id": "0206bfe3-d1a3-4e95-8309-aadc33af5297",
+          "label": "this"
+        },
+        {
+          "id": "d564d4c4-0291-4352-b5a1-b9f67df515e8",
+          "label": "note:"
+        },
+        {
+          "id": "b687bbb0-8698-4336-9b79-0543033a51c1",
+          "label": "\u2018I"
+        },
+        {
+          "id": "730bac02-4530-4c84-8b02-2fe85ec9f8db",
+          "label": "uploaded"
+        },
+        {
+          "id": "540f5632-bcc0-43c3-b5fd-de5677257b74",
+          "label": "file"
+        },
+        {
+          "id": "138998b8-8669-4f65-9dbf-6ec8699e5407",
+          "label": "earlier"
+        },
+        {
+          "id": "b5b9b1c5-74c4-4229-908e-86cb67be38d0",
+          "label": "about"
+        },
+        {
+          "id": "520f67eb-2dcf-4d4f-9454-5b984b95abb8",
+          "label": "my"
+        },
+        {
+          "id": "53f2fdf6-370e-47ab-b102-84bf3e0c2493",
+          "label": "goals."
+        }
+      ],
+      "relations": [
+        {
+          "source": "ba8ad39f-25c8-4c6a-b7cb-ea70d70e9ebc",
+          "target": "53f2fdf6-370e-47ab-b102-84bf3e0c2493",
+          "type": "mentions"
+        }
+      ],
+      "metadata": {
+        "normalized": true,
+        "entity_count": 26,
+        "relation_count": 1,
+        "raw_text": "Help me design a 3\u2011phase learning plan for Python, and speak in a friendly mentor persona. Also store this note: \u2018I uploaded a file earlier about my goals."
+      }
+    },
+    "world": {},
+    "persona": {},
+    "agent_state": "idle",
+    "workflow": {
+      "steps": [
+        {
+          "id": 1,
+          "text": "Clarify the goal",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "text": "Break the goal into steps",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "Execute the first step",
+          "status": "pending"
+        }
+      ],
+      "current_step": 1,
+      "completed": false
+    },
+    "file_input": ""
+  }
+}

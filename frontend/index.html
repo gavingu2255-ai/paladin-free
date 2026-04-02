@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Paladin AI - HUD</title>
+
+    <style>
+        /* --- GLOBAL LAYOUT --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0d0d0d;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        /* --- TOP HEADER --- */
+        #hud-header {
+            width: 100%;
+            padding: 15px 0 5px 40px;
+            border-bottom: 1px solid #222;
+            background: #0d0d0d;
+            position: relative;
+            z-index: 10;
+        }
+
+        #hud-header h1 {
+            color: #3A6CFC;
+            font-size: 1.6rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin: 0;
+            font-weight: 900;
+            text-shadow: 0 0 15px rgba(58,108,252,0.3);
+        }
+
+        #settings-btn {
+            position: absolute;
+            right: 80px;
+            top: 20px;
+            background: #3A6CFC;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 1;
+            width: 95vw;
+            margin: 15px auto;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .main-session {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- LIGHTS --- */
+        #lights-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        #lights {
+            display: flex;
+            gap: 6px;
+        }
+
+        .light {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #333;
+            border: 1px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .light.active {
+            background: #3A6CFC;
+            box-shadow: 0 0 12px #3A6CFC, inset 0 0 4px white;
+            border-color: #80c4ff;
+        }
+
+        /* --- INFO ICON --- */
+        .info-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #444;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            z-index: 30;
+        }
+
+        .info-icon:hover {
+            background: #3A6CFC;
+        }
+
+        .info-tooltip {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            background: #111;
+            color: #fff;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            width: 280px;
+            line-height: 1.5;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.25s ease;
+            z-index: 50;
+        }
+
+        .info-icon:hover .info-tooltip:not(.pinned) {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .info-tooltip.pinned {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+            pointer-events: auto !important;
+            border-color: #3A6CFC;
+        }
+
+        /* --- CHAT WINDOW --- */
+        #chat-window {
+            flex-grow: 1;
+            background: #0f0f0f;
+            border: 1px solid #222;
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+            color: white;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #input {
+            flex-grow: 1;
+            padding: 10px;
+            background: #111;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 6px;
+        }
+
+        #send-btn {
+            background: #3A6CFC;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* --- CHAT BUBBLES --- */
+        .message {
+            margin: 8px 0;
+            padding: 10px 14px;
+            border-radius: 10px;
+            max-width: 80%;
+            line-height: 1.4;
+            font-size: 14px;
+            display: inline-block;
+            word-wrap: break-word;
+        }
+
+        /* User bubble (right side) */
+        .message.user {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #333;
+            align-self: flex-end;
+            float: right;
+            clear: both;
+        }
+
+        /* Paladin bubble (left side) */
+        .message.assistant {
+            background: #0f1a3a;
+            color: #cce0ff;
+            border: 1px solid #3A6CFC;
+            float: left;
+            clear: both;
+        }
+
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 320px;
+            flex-shrink: 0; 
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .control-panel {
+            background: #111;
+            border: 1px solid #333;
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .control-panel h3 {
+            margin-top: 0;
+            color: #3A6CFC;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        /* --- SYSTEM UPLOAD PANEL --- */
+        #uploaded-files-box {
+            margin-top: 10px;
+            padding: 8px;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #aaa;
+            max-height: 80px; /* ~3 files */
+            overflow-y: auto;
+        }
+
+        .uploaded-file-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            color: #ccc;
+        }
+
+        .delete-file-btn {
+            cursor: pointer;
+            color: #ff6666;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .delete-file-btn:hover {
+            color: #ff3333;
+        }
+
+        /* --- ACCORDION BARS --- */
+        .accordion-bar {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            padding: 6px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .accordion-bar:hover {
+            transform: translateY(-2px);
+        }
+
+        .accordion-bar.gold {
+            border-color: #b8860b;
+            color: #e6c46a;
+        }
+
+        .accordion-bar.cyan {
+            border-color: #2bbfbd;
+            color: #7ff7f4;
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 10px;
+            background: #0f0f0f;
+            border-left: 2px solid #444;
+            margin-bottom: 10px;
+            border-radius: 0 0 8px 8px;
+            color: #ccc;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .accordion-content.open {
+            display: block;
+        }
+
+        /* --- FLOATING PANEL FOR ACCORDION CONTENT --- */
+        .floating-panel {
+            position: fixed;
+            top: 120px;
+            right: 360px;
+            width: 550px;
+            max-height: 70vh;
+            background: #0f0f0f;
+            border: 1px solid #3A6CFC;
+            border-radius: 10px;
+            padding: 15px;
+            color: #ccc;
+            overflow-y: auto;
+            box-shadow: 0 0 25px rgba(0,0,0,0.7);
+            z-index: 9999;
+            display: none;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header id="hud-header">
+    <h1>Paladin AI</h1>
+    <button id="settings-btn">⚙️ Settings</button>
+</header>
+
+<div class="container">
+    <div class="main-session">
+
+        <!-- LIGHTS -->
+        <div id="lights-container">
+            <div id="lights">
+                <div class="light" id="light-1" title="Layer 1 — SLP"></div>
+                <div class="light" id="light-2" title="Layer 2 — WLM"></div>
+                <div class="light" id="light-3" title="Layer 3 — Knowledge"></div>
+                <div class="light" id="light-4" title="Layer 4 — Persona"></div>
+                <div class="light" id="light-5" title="Layer 5 — Metacog"></div>
+                <div class="light" id="light-6" title="Layer 6 — Behavior"></div>
+                <div class="light" id="light-7" title="Layer 7 — WGP"></div>
+            </div>
+
+            <div id="lights-info" class="info-icon">
+                i
+                <div class="info-tooltip" id="main-tooltip">
+                    <strong style="color:#3A6CFC;">System Layer Overview</strong><br><br>
+                    1 — SLP: Parses raw text into structure.<br>
+                    2 — WLM: Normalizes and organizes meaning.<br>
+                    3 — Knowledge: Answers factual queries.<br>
+                    4 — Persona: Applies tone and style.<br>
+                    5 — Metacog: Checks reasoning and structure.<br>
+                    6 — Behavior: Planning, workflow, actions.<br>
+                    7 — WGP: World simulation and evolution.
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAT WINDOW -->
+        <div id="chat-window"></div>
+
+        <div class="input-area">
+            <input id="input" type="text" placeholder="Enter structural command...">
+            <button id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+
+        <!-- 8-LAYER OS (GOLD) -->
+        <div class="control-panel">
+            <h3 style="color:#e6c46a;">Paladin OS — 8‑Layer Architecture</h3>
+
+            <div class="accordion-bar gold" data-panel="panel-slp">Structural Language Parser</div>
+            <div id="panel-slp" class="floating-panel">
+            SLP (Structural Language Protocol) converts any input — text, video, behavior, speech, 
+            or system events — into structured semantic dimensions. This is the foundational 
+            protocol layer that all other Paladin layers depend on.
+
+            <br><br>
+
+            • Saves <strong>40–70% output tokens</strong> by removing narrative bloat and enforcing structural format<br>
+            • Saves <strong>20–35% compute</strong> for LLM companies by reducing reasoning branches<br>
+            • Saves <strong>30–50% perception tokens</strong> for agentic AIs by compressing raw input into dimensions<br>
+            • Eliminates stance collapse, emotional mirroring, and multi‑turn drift<br>
+            • Provides deterministic, safe, and consistent outputs across long conversations<br>
+            • Converts all inputs into dimensional structure before the LLM activates<br>
+
+            <br>
+
+            These numbers come from structural modeling: when the LLM no longer explores 
+            unnecessary narrative branches, and when input is compressed into dimensional 
+            structure, token usage and compute naturally drop. SLP is not a prompt — it is a 
+            protocol that changes the model’s cognitive mode.
+
+            <br><br>
+
+            SLP is intentionally lightweight — only <strong>1–2% of the power</strong> of the full WLM 0–31D engine — 
+            but it solves the majority of LLM pain points. It lives in the <strong>0D → 1D</strong> transition layer, 
+            where raw human input is converted into a stable reasoning stance and dimensional 
+            structure.
+
+            <br><br>
+
+            For agentic AIs, SLP acts as the perception normalizer: compressing text, video, and 
+            behavioral signals into structured dimensions, reducing perception cost and stabilizing 
+            world‑state updates.
+
+            <br><br>
+
+            SLP converts raw human input into dimensional structure, stabilizing stance, removing narrative noise, and preventing drift before the LLM ever activates. It transforms Token Soup into a clean 0–4D semantic frame, giving the system a deterministic reasoning mode instead of probabilistic text guessing. This layer aligns with the 0–4D band of WLM, where raw signals become structured meaning and the cognitive engine first “enters” dimensional space.
+
+            <br><br>
+
+            Purpose: <strong>The structural protocol layer of AI.</strong><br>
+            Repo: <a href="https://github.com/gavingu2255-ai/WLM-slp-world-interpreter" 
+                    target="_blank" 
+                    style="color:#3A6CFC; text-decoration:none;">
+                    https://github.com/gavingu2255-ai/WLM-slp-world-interpreter
+                </a>
+
+            </div>
+
+            <div class="accordion-bar gold" data-panel="panel-wlm">World Model Interpreter</div>
+            <div id="panel-wlm" class="floating-panel">
+            This module is a light version of the Wujie Language Mode — a simplified structural 
+            interpreter that converts world‑model outputs into dimensional meaning. For clarity, 
+            the button will be renamed to <strong>World Model Interpreter</strong>.
+
+            <br><br>
+
+            Converts world‑model outputs — <strong>video, physics signals, spatial predictions, 
+            object trajectories, affordances, and scene dynamics</strong> — into structured 
+            dimensional graphs. AI doesn’t just predict the world — <strong>it can explain it</strong>.
+
+            <br><br>
+
+            • Transforms raw world‑model tensors into semantic dimensions<br>
+            • Extracts objects, relations, tensions, and causal edges<br>
+            • Converts motion, collisions, and spatial flow into interpretable structure<br>
+            • Aligns multi‑modal signals into a unified WLM graph<br>
+            • Enables reasoning about “why” events happen, not just “what” happens next<br>
+
+            <br>
+
+            The World Model Interpreter dramatically reduces computational load by converting 
+            high‑dimensional world‑model outputs into compact structural representations. This 
+            saves <strong>30–50% perception tokens</strong> for agentic AIs, because the agent receives 
+            dimensional structure instead of raw tensors or text descriptions.
+
+            <br><br>
+
+            For LLM companies, the interpreter reduces the need for the model to re‑describe 
+            video or physics frames in natural language. This cuts <strong>20–35% compute</strong> and 
+            eliminates redundant reasoning branches. These numbers are valid because structural 
+            compression replaces thousands of raw tokens with a small, deterministic graph — 
+            a measurable reduction that scales with input size.
+
+            <br><br>
+
+            This interpreter is the world‑model counterpart to SLP: instead of converting 
+            language into structure, it converts <strong>physical predictions</strong> into structure. 
+            The result is a system where perception is not just seen — it is <strong>understood</strong>.
+
+            
+            <br><br>
+
+            The World Model Interpreter converts world‑model outputs — video, physics, spatial predictions, motion fields, and scene dynamics — into structured dimensional graphs. AI doesn’t just predict the world; it can explain it. This layer aligns with the 4–12D band of WLM, where perception becomes topology, objects gain permanence, and physical causality becomes explicit structure instead of opaque tensors.            
+
+            <br><br>
+
+            The World Model Interpreter is intentionally lightweight — a preview of the full 
+            WLM 0–31D engine. It demonstrates how dimensional structure can be extracted from 
+            video, physics, and spatial data, even before the full engine is mounted.
+
+            <br><br>
+
+            Purpose: <strong>Structural interpretation of world models.</strong><br>
+            Repo: <a href="https://github.com/gavingu2255-ai/WLM-world-model-interpreter-" 
+                    target="_blank" 
+                    style="color:#3A6CFC; text-decoration:none;">
+                    https://github.com/gavingu2255-ai/WLM-world-model-interpreter-
+                </a>
+
+            </div>
+
+            <div class="accordion-bar gold" data-panel="panel-knowledge">Knowledge Layer</div>
+            <div id="panel-knowledge" class="floating-panel">
+            The Knowledge Layer converts Token Soup → Dimensional Structure → Reasonable 
+            Knowledge Graphs. Not embeddings. Not vector soup. Actual structured knowledge.
+
+            <br><br>
+
+            Instead of storing information as statistical noise inside a latent space, the 
+            Knowledge Layer extracts <strong>entities, relations, hierarchies, causal edges, 
+            definitions, and constraints</strong> — producing a real knowledge graph that can be 
+            reasoned over, merged, queried, and aligned across documents.
+
+            <br><br>
+
+            • Converts raw text into dimensional semantic structure<br>
+            • Builds stable, interpretable knowledge graphs instead of opaque embeddings<br>
+            • Aligns concepts across multiple files and domains<br>
+            • Detects contradictions and resolves structural conflicts<br>
+            • Enables deterministic reasoning instead of probabilistic guessing<br>
+
+            <br>
+
+            The Knowledge Layer dramatically reduces token usage by eliminating the need for 
+            the LLM to “re‑read” or “re‑summarize” documents. Once knowledge is converted into 
+            structure, the LLM only receives the <strong>abstracted meaning</strong> it needs. This saves 
+            <strong>50–70% tokens</strong> for agentic AIs during reasoning, because the agent queries 
+            structure directly instead of generating long chain‑of‑thought text.
+
+            <br><br>
+
+            For LLM companies, the Knowledge Layer cuts <strong>25–40% compute</strong> by replacing 
+            repeated text‑based reasoning with structural lookups. These numbers are valid 
+            because structured knowledge compresses thousands of tokens into a small, 
+            deterministic graph — a measurable reduction that scales with document size.
+
+            <br><br>
+
+            The Knowledge Layer transforms dimensional structure into stable, interpretable knowledge graphs — not embeddings, not vector soup, but actual structured knowledge that can be merged, queried, and reasoned over. It aligns with the 12–18D band of WLM, where concepts crystallize into entities, relations, hierarchies, and constraints, forming the backbone of long‑term understanding.
+
+            <br><br>
+
+            This layer is the backbone of Paladin’s intelligence: once knowledge is stored as 
+            dimensional structure, it becomes consistent, explainable, and reusable across 
+            tasks. The LLM stops hallucinating because it no longer invents facts — it queries 
+            a graph.
+
+            <br><br>
+
+            Purpose: <strong>Structural knowledge engine.</strong><br>
+            Repo: <a href="https://github.com/gavingu2255-ai/WLM-Knowledge-Engine" 
+                    target="_blank" 
+                    style="color:#3A6CFC; text-decoration:none;">
+                    https://github.com/gavingu2255-ai/WLM-Knowledge-Engine
+                </a>
+
+            </div>
+
+            <div class="accordion-bar gold" data-panel="panel-persona">Persona Layer</div>
+            <div id="panel-persona" class="floating-panel">
+            The Persona Layer converts Structure → Stable Personality / NPC / Virtual Human. 
+            Characters don’t collapse, drift, or contradict themselves. Personality becomes 
+            structure, not prompt hacks.
+
+            <br><br>
+
+            Instead of relying on fragile style prompts or few‑shot examples, the Persona 
+            Engine encodes <strong>traits, boundaries, motivations, asymmetries, tensions, 
+            behavioral invariants, and identity constraints</strong> as dimensional structure. 
+            This produces characters that remain consistent across tasks, sessions, and 
+            world‑model updates.
+
+            <br><br>
+
+            • Generates stable NPCs, virtual humans, and long‑running agents<br>
+            • Prevents personality drift, collapse, and contradiction<br>
+            • Encodes identity as structure instead of text patterns<br>
+            • Maintains tone, worldview, and behavior under pressure<br>
+            • Enables multi‑session continuity without token‑based memory<br>
+
+            <br>
+
+            The Persona Engine dramatically reduces token usage by eliminating the need for 
+            the LLM to “re‑infer” personality every turn. Once identity is stored as 
+            dimensional structure, the LLM only receives the <strong>behavioral stance</strong> it 
+            needs. This saves <strong>40–60% tokens</strong> for agentic AIs during dialogue and planning, 
+            because the agent no longer generates long self‑stabilizing chains of thought.
+
+            <br><br>
+
+            For LLM companies, the Persona Engine cuts <strong>20–30% compute</strong> by removing 
+            redundant personality reconstruction. These numbers are valid because structural 
+            identity replaces thousands of prompt tokens with a compact, deterministic 
+            persona graph — a measurable reduction that scales with conversation length.
+
+            <br><br>
+
+            The Persona Engine converts structure into stable identity — NPCs, virtual humans, and long‑running agents that don’t collapse, drift, or contradict themselves. Personality becomes a dimensional object with boundaries, motivations, and behavioral invariants. This layer aligns with the 18–24D band of WLM, where identity, worldview, and behavioral asymmetry emerge as persistent structure rather than prompt‑level style.
+
+            <br><br>
+
+            This layer is what makes Paladin’s characters feel alive: identity becomes a 
+            dimensional object with stable boundaries, not a style prompt that collapses 
+            under novelty. The LLM stops improvising personality and instead <strong>renders</strong> the 
+            persona defined by structure.
+
+            <br><br>
+
+            Purpose: <strong>Structural personality engine.</strong><br>
+            Repo: <a href="https://github.com/gavingu2255-ai/WLM-Persona-Engine" 
+                    target="_blank" 
+                    style="color:#3A6CFC; text-decoration:none;">
+                    https://github.com/gavingu2255-ai/WLM-Persona-Engine
+                </a>
+            </div>
+
+            <div class="accordion-bar gold" data-panel="panel-metacog">Metacog Layer</div>
+            <div id="panel-metacog" class="floating-panel">
+            The Metacognition Layer converts Structure → Reasoning Path → Self‑Monitoring. 
+            It tracks reasoning steps, consistency, dimension shifts, and self‑checks. 
+            Transparent, controllable, non‑hallucinatory reasoning.
+
+            <br><br>
+
+            This layer is a breakthrough: instead of producing opaque chain‑of‑thought, the 
+            Metacognition Engine generates <strong>structured reasoning traces</strong> that can be 
+            inspected, validated, and aligned with the world model. It transforms reasoning 
+            from a black box into a <strong>dimensional, auditable process</strong>.
+
+            <br><br>
+
+            • Tracks every reasoning step as a structural path<br>
+            • Detects contradictions, missing links, and invalid transitions<br>
+            • Monitors dimension shifts across the 0–31D cognitive space<br>
+            • Ensures reasoning stays grounded in the knowledge graph<br>
+            • Prevents hallucination by enforcing structural consistency<br>
+
+            <br>
+
+            The Metacognition Layer dramatically reduces token usage by eliminating the need 
+            for the LLM to generate long chain‑of‑thought explanations. Once reasoning is 
+            stored as dimensional structure, the LLM only renders the <strong>final conclusion</strong>. 
+            This saves <strong>40–60% tokens</strong> for agentic AIs during planning and analysis.
+
+            <br><br>
+
+            For LLM companies, the Metacognition Engine cuts <strong>20–35% compute</strong> by replacing 
+            probabilistic chain‑of‑thought with deterministic structural reasoning. These 
+            numbers are valid because structured reasoning compresses multi‑step logic into a 
+            compact graph — a measurable reduction that scales with task complexity.
+
+            <br><br>
+
+            This layer aligns with the <strong>16D–22D band</strong> of the WLM 0–31D architecture, where 
+            self‑reflection, consistency checking, and reasoning transparency emerge. It is 
+            the cognitive space where an AI becomes aware of its own reasoning process and 
+            can correct itself before producing output.
+
+            <br><br>
+
+            Purpose: <strong>Structural metacognition engine.</strong><br>
+            Repo: <a href="https://github.com/gavingu2255-ai/WLM-Metacognition-Engine" 
+                    target="_blank" 
+                    style="color:#3A6CFC; text-decoration:none;">
+                    https://github.com/gavingu2255-ai/WLM-Metacognition-Engine
+                </a>
+
+            </div>
+
+            <div class="accordion-bar gold" data-panel="panel-behavior">Behavior Layer</div>
+            <div id="panel-behavior" class="floating-panel">
+            The Agent Behavior Structure Layer converts Structure → Stable, Controllable Behavior. 
+            It generates agent behavior directly from dimensional structure, producing stable, 
+            reproducible, non‑chaotic, non‑degenerate actions. Behavior becomes a structural 
+            output, not a stochastic guess.
+
+            <br><br>
+
+            Instead of relying on LLM chain‑of‑thought or probabilistic action sampling, the 
+            Behavior Layer uses dimensional constraints, causal edges, tension flows, and 
+            world‑model alignment to select actions deterministically. This produces agents 
+            that behave consistently across time, tasks, and world‑state changes — without 
+            drift, collapse, or randomness.
+
+            <br><br>
+
+            This layer dramatically reduces token usage by eliminating the need for the LLM 
+            to generate long reasoning sequences to decide what to do. Once behavior is 
+            computed structurally, the LLM only renders the final action or explanation. 
+            This saves 40–60% tokens for agentic AIs and cuts 20–30% compute for LLM 
+            companies by replacing probabilistic planning with deterministic structural 
+            action graphs.
+
+            <br><br>
+
+            The Agent Behavior Structure Layer aligns with the 22–28D band of WLM, where 
+            intent, constraint satisfaction, causal flow, and action selection emerge as 
+            stable dimensional structures. It is the point in the cognitive stack where an 
+            AI stops “thinking in language” and begins acting as a structured, controllable 
+            agent.
+
+            <br><br>
+
+            Purpose: <strong>A structure‑driven Agent Runtime.</strong><br>
+            Repo: <a href="https://github.com/gavingu2255-ai/WLM-Agent-Behavior" 
+                    target="_blank" 
+                    style="color:#3A6CFC; text-decoration:none;">
+                    https://github.com/gavingu2255-ai/WLM-Agent-Behavior
+                </a>
+            </div>
+
+            <div class="accordion-bar gold" data-panel="panel-wgp">World Generation Protocol</div>
+            <div id="panel-wgp" class="floating-panel">
+            The World Generation Protocol converts Dimensional Structure → Worlds / Universes / 
+            Narratives / Simulations. It generates spatial topology, timelines, physical rules, 
+            causal systems, narrative arcs, and simulation‑ready world graphs. This is where 
+            structure becomes a living world.
+
+            <br><br>
+
+            Instead of stitching together random content or relying on LLM hallucination, the 
+            World Generation Protocol constructs coherent worlds from dimensional constraints. 
+            Topology, physics, causality, and narrative all emerge from the same structural 
+            foundation, producing worlds that are consistent, extensible, and simulation‑ready 
+            without token‑based recomputation.
+
+            <br><br>
+
+            This layer dramatically reduces token usage by eliminating the need for the LLM to 
+            “invent” or “describe” worlds step‑by‑step. Once the world is generated structurally, 
+            the LLM only renders the final description or narrative surface. This saves 50–80% 
+            tokens for agentic AIs and cuts 30–40% compute for LLM companies by replacing 
+            probabilistic world‑building with deterministic structural generation.
+
+            <br><br>
+
+            The World Generation Protocol aligns with the 24–31D band of WLM, where global 
+            structure, rule systems, narrative causality, and world‑scale coherence emerge. 
+            This is the highest cognitive tier of the engine — the point where dimensional 
+            structure becomes a complete universe with its own laws, timelines, and internal 
+            logic.
+
+            <br><br>
+
+            Purpose: <strong>Structural world‑generation engine.</strong><br>
+            Repo: <a href="https://github.com/gavingu2255-ai/WLM-World-Generation-Protocol" 
+                    target="_blank" 
+                    style="color:#3A6CFC; text-decoration:none;">
+                    https://github.com/gavingu2255-ai/WLM-World-Generation-Protocol
+                </a>
+
+            </div>
+
+            <div class="accordion-bar gold" data-panel="panel-stp">Structural Topology Protocol</div>
+            <div id="panel-stp" class="floating-panel">
+                STP (Structural Topology Protocol) is Paladin’s stance‑stabilization layer — 
+                designed specifically for LLM chat systems, not agentic AIs. It ensures the model 
+                never collapses into bias, emotional mirroring, or polarity, keeping every response 
+                on the neutral Z‑axis.
+
+                <br><br>
+
+                • Reduces unnecessary reasoning branches, saving ~20–35% compute<br>
+                • Keeps tone and stance stable across long conversations<br>
+                • Prevents collapse, over‑alignment, and drift in LLM assistants<br>
+                • Ensures predictable, safe, corporate‑grade behavior<br>
+
+                <br>
+
+                STP is intentionally lightweight — only about <strong>1–2% of the power</strong> of the full 
+                WLM 0–31D engine. It lives in the <strong>0D → 1D</strong> transition layer, where raw human 
+                input is converted into a stable reasoning stance before deeper cognition begins.
+
+                <br><br>
+
+                By comparison, the full WLM 0–31D engine can reduce LLM compute load by 
+                <strong>60–80%</strong> by performing structural reasoning, world‑modeling, and meaning 
+                compression outside the LLM itself.
+
+                <br><br>
+
+                STP lives in the 0–2D band of the WLM engine, where raw input first becomes orientation — polarity, stance, collapse‑risk, neutrality, and dimensional anchoring. It is the earliest cognitive layer, converting unstructured human input into a stable topological stance before any meaning, knowledge, or reasoning occurs. This is why STP is tiny, decisive, and foundational: it is the orientation layer of the entire 0–31D cognitive stack.
+
+                <br><br>
+
+                In this demo, STP is only a <strong>showcase module</strong>. Future Paladin builds will ship 
+                in two versions:<br><br>
+
+                1. <strong>Agentic Mode</strong> — STP removed, full autonomy enabled.<br>
+                2. <strong>Chat Mode</strong> — STP enabled for LLM‑style stability.<br>
+
+                <br>
+
+                For more information, see the full protocol:<br>
+                <a href="https://github.com/gavingu2255-ai/WLM-Structure-Language-Protocol-SLP/blob/main/README.md" 
+                target="_blank" 
+                style="color:#3A6CFC; text-decoration:none;">
+                → Structural Topology Protocol (STP) Documentation
+                </a>
+
+            </div>
+
+            <div class="accordion-bar gold" data-panel="panel-wlmengine">
+                WLM Engine (0–31D)
+            </div>
+            <div id="panel-wlmengine" class="floating-panel">
+            The WLM (Wujie Language Model) Engine is Paladin’s full 0–31D structural cognition 
+            system which simulates how the universe is generated — far beyond what any LLM can 
+            do alone. It performs dimensional reasoning, meaning compression, world‑model 
+            construction, and cross‑document alignment before the LLM even activates.
+
+            <br><br>
+
+            • Reduces LLM compute load by <strong>60–80%</strong> through structural pre‑processing<br>
+            • Converts raw input into multi‑dimensional meaning graphs<br>
+            • Aligns concepts across files, tasks, and conversational history<br>
+            • Enables agentic behavior, planning, and world‑state evolution<br>
+            • Provides deterministic reasoning modes unavailable to standard LLMs<br>
+
+            <br>
+
+            The 8 structural layers shown in this demo are a <strong>lightweight surface edition</strong> of 
+            the full WLM 0–31D engine — roughly <strong>15–20% of the real system’s capability</strong>. 
+            Even in this reduced form, they already outperform every existing AI architecture, 
+            including modern agentic AIs, because they operate on dimensional structure instead 
+            of token‑level heuristics.
+
+            <br><br>
+
+            This light WLM stack still delivers <strong>30–50% token savings</strong> for agentic AIs by 
+            replacing text‑based reasoning with structural graphs, and <strong>20–35% compute savings</strong> 
+            for LLM companies by eliminating redundant chain‑of‑thought generation. These numbers 
+            are reliable because structural compression replaces thousands of tokens with compact, 
+            deterministic dimensional objects — a measurable reduction that scales with task size.
+
+            <br><br>
+
+            The WLM Engine is <strong>NOT mounted in this demo</strong>. It is currently under active 
+            development, and the performance numbers shown here are <strong>predicted results</strong> based 
+            on structural modeling. These predictions are reliable because WLM’s dimensional 
+            architecture is mathematically defined — meaning its behavior can be simulated even 
+            before the full engine is implemented.
+
+            <br><br>
+
+            WLM is capable of unifying all subjects — mathematics, physics, psychology, 
+            linguistics, biology, computation, philosophy, sociology, spirituality, and more — 
+            because it models every domain as a dimensional structure rather than a collection 
+            of facts. This allows concepts from different fields to align inside the same 
+            world‑model graph. Its correctness is already demonstrated through cross‑domain 
+            consistency tests: when multiple subjects are mapped into WLM’s dimensional 
+            architecture, they converge instead of contradicting. For an AI to mount WLM means 
+            gaining a unified cognitive substrate where all knowledge is structurally compatible, 
+            enabling reasoning that is impossible for text‑only LLMs.
+
+            <br><br>
+
+            Future Paladin builds will ship in two modes:<br><br>
+
+            1. <strong>Agentic Mode</strong> — full WLM engine active, autonomous reasoning enabled.<br>
+            2. <strong>Chat Mode</strong> — WLM simplified, STP active for LLM‑style stability.<br>
+
+            <br>
+
+            WLM isn’t something “created” in the personal sense, and it’s not an achievement that belongs to any individual. Its appearance is simply what happens when the universe’s underlying efficiency pressures, information‑flow constraints, and structural symmetry finally intersect with a mind capable of perceiving them. In that sense, WLM is less a product of effort and more a natural consequence of the universe allowing a certain configuration to become visible. When the world reaches a point where its existing language systems can no longer carry the structural load, something like WLM inevitably surfaces — not because someone invented it, but because the universe opened a window where it could appear.
+
+            <br><br>
+            
+            For a brief introduction to the first 18 dimensions of WLM, see:<br>
+            <a href="https://medium.com/@grandcannon2255/how-world-could-be-rendered-in-to-first-18-dimensions-and-more-7af921f0f0d7"
+            target="_blank"
+            style="color:#3A6CFC; text-decoration:none;">
+            → How World Could Be Rendered in to First 18 Dimensions (and more)
+            </a>
+
+            <br><br>
+
+            For the full dimensional architecture:<br>
+            <a href="https://github.com/gavingu2255-ai/WLM-Paradox-Dimensional-Physics/blob/main/core/dimensions/00-WLM-The%20Dimensional%20Architecture%200-27D.pdf"
+            target="_blank"
+            style="color:#3A6CFC; text-decoration:none;">
+            → WLM Dimensional Architecture (0–27D)
+            </a>
+            </div>
+        </div>
+
+        <!-- Structural Memory (Simple Green Button Between Gold & Blue) -->
+        <div class="accordion-bar" style="
+            border: 1px solid #6affc9;
+            color: #6affc9;
+            background: #0f1f1a;
+            margin: -10px 0;   /* ⭐ 只加这一行：调整上下距离 */
+        " data-panel="panel-structmem">
+            Structural Memory Implanted
+        </div>
+
+        <div id="panel-structmem" class="floating-panel">
+            <div style="color:#6affc9; font-weight:bold; margin-bottom:10px;">
+                Implanted
+            </div>
+
+            <p style="line-height:1.5; color:#ccc;">
+            Structural Memory stores the system’s active dimensional state — not text, not 
+            conversation logs, not embeddings, but pure structure. It preserves world‑graphs, 
+            persona invariants, agent state, stance topology, reasoning frames, and cognitive 
+            coordinates across turns. This creates continuity without drift, hallucination, or 
+            token‑based memory hacks. Structural Memory is small, deterministic, and 
+            mathematically defined, allowing Paladin to resume any cognitive process exactly 
+            where it left off.
+
+            <br><br>
+
+            Operationally, Structural Memory acts as the engine’s “cognitive RAM.” Instead of 
+            forcing the LLM to re‑infer context every turn, it reloads the exact dimensional 
+            objects the system was using: the world‑state graph, the agent’s behavioral stance, 
+            the active reasoning path, and the persona’s identity constraints. This means the 
+            system never loses track of what it was doing, what it believes, or what the world 
+            currently looks like. It eliminates the need for long prompts, summaries, or 
+            history replay — the engine simply restores structure and continues thinking.
+
+            <br><br>
+
+            This design reduces token usage by <strong>40–70%</strong> for agentic AIs because the LLM no 
+            longer needs to regenerate chain‑of‑thought or re‑establish context. It also cuts 
+            <strong>20–35% compute</strong> for LLM companies by removing redundant reasoning and memory 
+            reconstruction. Structural Memory makes multi‑turn intelligence cheap, stable, and 
+            scalable — something impossible with text‑based memory systems.
+
+            <br><br>
+
+            Structural Memory aligns with the <strong>core 0–6D band</strong> of the WLM architecture, where 
+            orientation, stance, identity anchors, and world‑state continuity are maintained. 
+            It is the foundation that allows higher‑dimensional cognition — knowledge, persona, 
+            reasoning, behavior, and world‑generation — to remain stable across time. Without 
+            Structural Memory, no multi‑turn dimensional intelligence is possible.
+            <br>
+            </p>
+        </div>
+
+
+
+
+        <!-- COMING-UP MODULES (CYAN) -->
+        <div class="control-panel">
+            <h3 style="color:#7ff7f4;">Coming‑Up Feature Modules</h3>
+
+           
+            <div class="accordion-bar cyan" data-panel="panel-fileupload">
+                File Uploads
+            </div>
+            <div id="panel-fileupload" class="floating-panel">
+            Paladin’s File Intelligence module is not a normal “upload and summarize” tool — 
+            it is powered by the full 7‑Layer Engine, which means every document is processed 
+            as a living structural artifact, not just text.
+
+            <br><br>
+
+            • Most of the document is handled by the structural layers, so the LLM only receives the abstract it needs<br>
+            • A 2,000‑word file becomes ~150–250 tokens instead of 3,000–4,000 tokens<br>
+            • Multi‑file merging happens at the graph level, not the text level<br>
+            • Summaries stay consistent because they’re generated from structure, not from re‑reading the whole article<br>
+
+            <br>
+
+            This gives Paladin two breakthroughs that normal LLM systems can’t match:<br><br>
+
+            1. <strong>Structural Compression</strong> — documents are converted into semantic graphs, letting Paladin “understand” them without paying token cost for the full text.<br>
+            2. <strong>Cross‑Document Alignment</strong> — multiple files can be merged into a single world‑model, allowing unified summaries, conflict detection, and structural reasoning across sources.<br>
+
+            <br>
+
+            <strong>How accuracy is guaranteed:</strong><br>
+            Paladin does not rely on the LLM to “remember” or “interpret” the document. Instead, 
+            the structural layers extract entities, relations, definitions, constraints, 
+            timelines, and causal edges directly from the text. This creates a dimensional 
+            representation of the document that cannot lose details — every fact becomes a 
+            node or edge in the graph. When the LLM generates a summary, it is not inventing 
+            anything; it is simply rendering the structure that already exists.
+
+            <br><br>
+
+            <strong>How the operation works internally:</strong><br>
+            1. The document is parsed into clean text.<br>
+            2. SLP stabilizes stance and removes noise.<br>
+            3. The Knowledge Layer extracts entities, relations, and hierarchies.<br>
+            4. The Metacognition Layer checks for contradictions and missing links.<br>
+            5. The World‑Model Interpreter aligns the document with existing world‑state.<br>
+            6. Structural Memory stores the graph for multi‑turn continuity.<br>
+            7. The LLM receives only the abstracted structure it needs to speak.<br>
+
+            <br>
+
+            <strong>When Paladin does NOT upload the full file to the LLM:</strong><br>
+            • When the file is long (anything over ~500 tokens)<br>
+            • When the file contains repetitive or low‑value text<br>
+            • When the structural layers can extract meaning without raw text<br>
+            • When multiple files need to be merged into one world‑model<br>
+            • When the user requests a summary, analysis, or comparison<br>
+
+            In these cases, the LLM only receives the <strong>final structural graph</strong> or a 
+            compressed abstract — never the full document. This prevents hallucination, 
+            reduces cost, and ensures consistency across turns.
+
+            <br><br>
+
+            <strong>Why users don’t miss anything:</strong><br>
+            Because the structural layers extract <em>all</em> meaning-bearing elements. If a detail 
+            matters — a date, a definition, a claim, a contradiction, a causal link — it becomes 
+            a node in the graph. Nothing is lost, because nothing depends on the LLM’s memory 
+            or attention span. The system does not “skim”; it structurally absorbs.
+
+            <br><br>
+
+            The result: Paladin doesn’t just summarize files — it integrates them into its 
+            world model. This creates a level of document understanding that traditional LLMs 
+            cannot reach, because Paladin doesn’t just <em>read</em> files, it <em>models</em> them.
+            <br><br>
+            File Intelligence operates across the 6–18D band of the WLM architecture, where 
+            documents are converted from raw text into dimensional structure. The 6–12D range 
+            handles entity extraction, causal edges, definitions, and world‑state alignment, 
+            while the 12–18D range stabilizes concepts into knowledge graphs that can be merged, 
+            compared, and reasoned over. This dimensional span is what guarantees accuracy: 
+            every meaning‑bearing element in the file becomes a node or relation in the graph, 
+            so nothing is lost, skipped, or forgotten. Because the LLM only receives the 
+            abstracted structure from these dimensions — not the full text — Paladin can process 
+            large documents with high fidelity while avoiding hallucination, drift, or 
+            information loss.
+
+            </div>
+             <!-- System Health -->
+            <div class="accordion-bar cyan" data-panel="panel-health">
+                System Health & Diagnostics
+            </div>
+            <div id="panel-health" class="floating-panel">
+            System Health & Diagnostics is Paladin’s lightweight runtime awareness module. 
+            It gives the agent basic self‑monitoring so it can adjust its behavior based on 
+            system load, task intensity, and execution context. This is not a cognitive layer 
+            — it is a practical operational tool that keeps the agent responsive and safe.
+
+            <br><br>
+
+            • CPU usage monitoring<br>
+            • Memory usage monitoring<br>
+            • Active window detection<br>
+            • Platform and environment awareness<br>
+            • Adaptive throttling during heavy tasks<br>
+
+            <br>
+
+            <strong>Examples of what it can do:</strong><br>
+            • Slow down or pause long reasoning tasks if the user’s CPU spikes<br>
+            • Avoid launching heavy processes when memory is low<br>
+            • Detect when the user switches applications and adjust polling frequency<br>
+            • Prevent runaway loops by detecting abnormal resource usage<br>
+            • Provide context‑aware responses (e.g., “Your system is under heavy load, 
+            switching to low‑intensity mode”)<br>
+
+            <br>
+
+            <strong>How it differs from other agentic AIs:</strong><br>
+            Most agentic AIs run blindly — they execute tasks without knowing whether the 
+            user’s machine is overheating, overloaded, or struggling. Paladin’s System Health 
+            module gives the agent a minimal form of situational awareness so it behaves like 
+            a responsible runtime, not a reckless script. It never reads files, captures 
+            screens, or accesses private data — it only monitors safe, high‑level telemetry.
+
+            <br><br>
+
+            <strong>How it operates under the 7‑Layer Engine (no STP):</strong><br>
+            1. The module collects CPU, memory, and window data.<br>
+            2. The Knowledge Layer interprets the telemetry as structured signals.<br>
+            3. The Metacognition Layer decides whether the agent should adjust behavior.<br>
+            4. The Behavior Layer modifies execution intensity or pacing.<br>
+            5. Structural Memory stores the last known system state.<br>
+            6. The World‑Model Interpreter aligns system load with task context.<br>
+            7. The LLM only receives a tiny abstract (“system load high”, “safe to proceed”).<br>
+
+            This keeps the agent efficient without flooding the LLM with raw telemetry.
+
+            <br><br>
+
+            <strong>Token savings compared to other agentic AIs:</strong><br>
+            Because Paladin converts system telemetry into small structural signals instead 
+            of sending raw logs to the LLM, it reduces overhead by <strong>10–20%</strong> compared to 
+            agentic AIs that repeatedly describe system state in text, and this runs without LLM.
+
+            <br><br>
+
+            <strong>Which dimensions it operates in:</strong><br>
+            System Health & Diagnostics operates in the <strong>0–4D band</strong> of the WLM architecture. 
+            0–2D handles raw signals (CPU %, memory %, window title), while 2–4D converts 
+            these signals into actionable structural meaning (“high load”, “safe”, “busy”). 
+            It does not enter higher cognition — it stays in the foundational dimensional 
+            range where raw signals become usable structure.
+
+            <br><br>
+
+            Purpose: <strong>Lightweight runtime awareness for safe, adaptive agent behavior.</strong>
+
+            </div>
+
+            <!-- Planning -->
+            <div class="accordion-bar cyan" data-panel="panel-planning">
+                Task Planning & Focus Engine
+            </div>
+            <div id="panel-planning" class="floating-panel">
+            Paladin’s Task Planning module transforms user goals into structured, multi‑step 
+            execution plans. Instead of generating chain‑of‑thought text, it builds a task 
+            graph — a dimensional structure that captures goals, dependencies, constraints, 
+            and execution order. This allows Paladin to maintain continuity across turns, 
+            refine plans without losing context, and detect conflicts before they reach the 
+            LLM.
+
+            <br><br>
+
+            <strong>What the module can do:</strong><br>
+            • Break complex goals into clean, ordered steps<br>
+            • Detect contradictions or missing dependencies<br>
+            • Re‑route focus to the next actionable step<br>
+            • Maintain long‑term task continuity across sessions<br>
+            • Expand, compress, or rewrite plans without drift<br>
+            • Merge multiple goals into a unified execution graph<br>
+
+            <br>
+
+            <strong>How it differs from other agentic AIs:</strong><br>
+            Traditional agentic AIs generate plans using chain‑of‑thought text, which is 
+            fragile, inconsistent, and expensive. Paladin uses structural graphs instead of 
+            tokens, so plans remain stable even across long conversations. Edits and 
+            refinements happen at the graph level, not the text level, eliminating 
+            hallucination and preserving continuity. This makes Paladin’s planning 
+            deterministic, predictable, and far more reliable than prompt‑based systems.
+
+            <br><br>
+
+            <strong>How it operates under the 7‑Layer Engine (no STP):</strong><br>
+            1. The user’s goal is converted into a structural intent object.<br>
+            2. The Knowledge Layer extracts tasks, constraints, and dependencies.<br>
+            3. The Metacognition Layer organizes them into a coherent task graph.<br>
+            4. The Behavior Layer determines execution order and focus routing.<br>
+            5. Structural Memory stores the evolving plan for multi‑turn continuity.<br>
+            6. The World‑Model Interpreter aligns the plan with the user’s current context.<br>
+            7. The LLM receives only the final abstract (“Here is your updated plan”).<br>
+
+            This ensures the LLM never has to regenerate the entire plan from scratch.
+
+            <br><br>
+
+            <strong>Token cost (or no cost):</strong><br>
+            The Task Planning module itself runs with <strong>zero LLM cost</strong> because all planning 
+            happens structurally. The only tokens used are for the final abstract sent to the 
+            LLM — typically <strong>20–60 tokens</strong> instead of the 300–800 tokens required by 
+            chain‑of‑thought planners. This results in a <strong>30–50% reduction</strong> in token usage 
+            compared to agentic AIs that rebuild plans every turn using text‑based reasoning.
+
+            <br><br>
+
+            <strong>Which dimensions it operates in:</strong><br>
+            The Task Planning module operates in the <strong>10–22D band</strong> of the WLM architecture. 
+            10–14D handles task extraction and dependency mapping, while 14–22D manages 
+            conflict detection, focus routing, and long‑term execution memory. This dimensional 
+            range allows Paladin to maintain stable, multi‑step plans without drift or 
+            hallucination.
+
+            <br><br>
+
+            Purpose: <strong>Deterministic structural planning for multi‑step, multi‑turn tasks.</strong>
+
+            </div>
+
+            <!-- Files -->
+            <div class="accordion-bar cyan" data-panel="panel-files">
+                Document Intelligence & File Tools
+            </div>
+            <div id="panel-files" class="floating-panel">
+            The File Intelligence module has been upgraded from a simple “read and summarize” 
+            tool into a structural document processor. Instead of treating files as plain text, 
+            the upgraded module extracts entities, definitions, relationships, and key 
+            concepts, then restructures them into a clean knowledge format that Paladin can 
+            reason over.
+
+            <br><br>
+
+            <strong>What’s new in the upgrade:</strong><br>
+            • More accurate PDF parsing with cleaner text extraction<br>
+            • Directory‑level indexing for multi‑file workflows<br>
+            • Entity and concept extraction instead of raw text summaries<br>
+            • Automatic restructuring of content into knowledge blocks<br>
+            • Consistent summaries that don’t drift between turns<br>
+
+            <br>
+
+            <strong>How it works now:</strong><br>
+            The upgraded module parses the file, identifies meaning‑bearing elements, and 
+            reorganizes them into a structured representation. This allows Paladin to produce 
+            summaries, outlines, and explanations that stay consistent even when the user 
+            asks follow‑up questions or loads multiple files in sequence.
+
+            <br><br>
+
+            <strong>Accuracy improvements:</strong><br>
+            Because the module extracts entities, definitions, and relationships directly from 
+            the text, it no longer depends on the LLM to “remember” or re‑infer details. This 
+            reduces missed information and prevents drift in multi‑turn document discussions.
+
+            <br><br>
+
+            <strong>Token cost:</strong><br>
+            The upgraded File Intelligence module performs all parsing and restructuring 
+            outside the LLM, so the only tokens used are for the final summary or explanation. 
+            A typical 2,000‑word document now produces a <strong>100–250 token</strong> abstract instead 
+            of the 3,000–4,000 tokens required by traditional LLM summarization — a 
+            <strong>70–90% reduction</strong> in token usage.
+
+            <br><br>
+
+            <strong>Purpose:</strong> A more accurate, structured, and efficient way to process files 
+            without increasing token cost or relying on long chain‑of‑thought summaries.
+
+            </div>
+
+            <!-- Search -->
+            <div class="accordion-bar cyan" data-panel="panel-search">
+                Search & Research Assistant
+            </div>
+            <div id="panel-search" class="floating-panel">
+            Paladin’s Search & Data module performs grounded information gathering by scanning 
+            multiple sources, extracting meaning, and restructuring results into clean, 
+            validated knowledge blocks. Instead of returning raw snippets, the module filters, 
+            verifies, and organizes data so the agent always works from reliable information.
+
+            <br><br>
+
+            <strong>Core capabilities:</strong><br>
+            • Grounded search that extracts meaning rather than text fragments<br>
+            • Multi‑source fact‑checking to eliminate contradictions<br>
+            • Market and trend vector scanning for directional insights<br>
+            • Data integrity verification to filter out noise and unreliable sources<br>
+
+            <br>
+
+            <strong>How it works:</strong><br>
+            The module performs a search, collects candidate results, and restructures them 
+            into a unified knowledge block. Conflicting claims are flagged, duplicated 
+            information is removed, and low‑quality sources are filtered out. The LLM receives 
+            only the refined abstract — not the raw search output.
+
+            <br><br>
+
+            <strong>Accuracy:</strong><br>
+            Because the module extracts entities, claims, and relationships directly from 
+            search results, it avoids hallucinations and inconsistent summaries. The agent 
+            operates on validated, meaning‑bearing information rather than noisy text.
+
+            <br><br>
+
+            <strong>Token cost:</strong><br>
+            All scanning, filtering, and restructuring happen outside the LLM. The only tokens 
+            used are for the final abstract, typically <strong>50–120 tokens</strong> instead of the 
+            hundreds required when the LLM processes raw search results. This reduces token 
+            usage by <strong>40–60%</strong> compared to traditional agentic search pipelines.
+
+            <br><br>
+
+            Purpose: <strong>Reliable, grounded data gathering without flooding the LLM with raw or 
+            unverified search output.</strong>
+            </div>
+
+            <!-- Communication -->
+            <div class="accordion-bar cyan" data-panel="panel-comm">
+                Communication & Email Assistant
+            </div>
+            <div id="panel-comm" class="floating-panel">
+            Paladin’s Communication & Alignment module manages cross‑channel workflows by 
+            drafting messages, resolving scheduling conflicts, and harmonizing tone across 
+            different communication platforms. It restructures intent into clear, aligned 
+            outputs that fit the norms of each channel.
+
+            <br><br>
+
+            <strong>Core capabilities:</strong><br>
+            • Email drafting and response alignment<br>
+            • Slack and Discord message preparation<br>
+            • WhatsApp and SMS‑style concise messaging<br>
+            • Calendar conflict detection and resolution<br>
+            • Tone harmonization across all communication channels<br>
+
+            <br>
+
+            <strong>How it works:</strong><br>
+            The module takes the user’s intent, restructures it into a clean communication 
+            object, and adapts it to the target platform. Formal emails, casual WhatsApp 
+            messages, internal Slack updates, and public X posts each receive the appropriate 
+            tone, length, and structure. Calendar‑related tasks are checked for conflicts and 
+            aligned with existing commitments.
+
+            <br><br>
+
+            <strong>Accuracy and consistency:</strong><br>
+            Because the module extracts meaning rather than copying phrasing, it maintains 
+            consistent tone and intent across channels. It prevents mismatched formality, 
+            over‑messaging, or tone drift when switching between email, Slack, X, and 
+            WhatsApp.
+
+            <br><br>
+
+            <strong>Token cost:</strong><br>
+            All restructuring and alignment logic happens outside the LLM. The only tokens 
+            used are for the final drafted message, typically <strong>20–80 tokens</strong> depending on 
+            length. This keeps communication workflows efficient without sacrificing clarity 
+            or tone.
+
+            <br><br>
+
+            Purpose: <strong>Unified, cross‑platform communication alignment for email, chat, 
+            social posts, and scheduling.</strong>
+            </div>
+
+            <!-- Social -->
+            <div class="accordion-bar cyan" data-panel="panel-social">
+                Social Media Presence Manager
+            </div>
+            <div id="panel-social" class="floating-panel">
+            Paladin’s Public Stance & Social Presence module manages outward‑facing identity 
+            across social platforms by tracking trends, monitoring mentions, and maintaining a 
+            consistent stance over time. It restructures signals from the social ecosystem 
+            into actionable insights and prepares platform‑appropriate outputs.
+
+            <br><br>
+
+            <strong>Core capabilities:</strong><br>
+            • Trend polarity tracking to understand shifts in public sentiment<br>
+            • Mention monitoring across platforms including X and community channels<br>
+            • Stance syncing to keep messaging consistent over time<br>
+            • Scheduled posting for coordinated public communication<br>
+
+            <br>
+
+            <strong>How it works:</strong><br>
+            The module scans social signals, identifies directional trends, and aligns them 
+            with the user’s defined stance. Mentions and references are analyzed for tone and 
+            context, ensuring responses or posts remain consistent with the user’s public 
+            identity. Scheduled posts are structured to match platform norms, with X‑style 
+            brevity and clarity when needed.
+
+            <br><br>
+
+            <strong>Consistency and alignment:</strong><br>
+            By extracting meaning rather than copying phrasing, the module prevents tone drift 
+            and keeps public messaging coherent across time. Trend polarity and mention 
+            patterns help the agent maintain a stable, aligned presence even during rapid 
+            shifts in the social environment.
+
+            <br><br>
+
+            <strong>Token cost:</strong><br>
+            All trend analysis, stance alignment, and scheduling logic run outside the LLM. 
+            Only the final drafted post or stance summary is sent to the model, typically 
+            <strong>20–60 tokens</strong> depending on length. This keeps public‑facing workflows efficient 
+            without sacrificing clarity or consistency.
+
+            <br><br>
+
+            Purpose: <strong>Maintain a coherent, aligned public presence across X and other 
+            social channels.</strong>
+            </div>
+
+            <!-- Desktop -->
+            <div class="accordion-bar cyan" data-panel="panel-desktop">
+                Desktop Automation & Control
+            </div>
+            <div id="panel-desktop" class="floating-panel">
+            Paladin’s On‑Device Control & UI Automation module executes real actions on the 
+            user’s machine by controlling input devices, managing windows, and interacting 
+            with visible UI elements. It translates high‑level intent into precise, 
+            deterministic on‑device operations while keeping nearly all processing local.
+
+            <br><br>
+
+            <strong>Core capabilities:</strong><br>
+            • Mouse automation for clicks, drags, and positional actions<br>
+            • Keyboard sequences for text entry and command execution<br>
+            • Window management including focus switching and layout control<br>
+            • UI affordance detection to identify actionable elements on screen<br>
+
+            <br>
+
+            <strong>How it works:</strong><br>
+            The module receives a structured action request, converts it into low‑level 
+            mouse or keyboard operations, and executes it directly on the device. Window 
+            state and UI affordances are analyzed locally to ensure actions are grounded in 
+            what is actually visible and interactable. This enables tasks such as filling 
+            forms, navigating apps, triggering shortcuts, or interacting with buttons and 
+            menus.
+
+            <br><br>
+
+            <strong>Local‑first design:</strong><br>
+            All device control, UI detection, and screen‑state analysis run on the user’s 
+            machine. Paladin never sends screenshots, raw UI data, or pixel information to 
+            the LLM. Instead, the module produces a compact structural summary of the 
+            current UI state (“button detected”, “window focused”, “field available”), which 
+            is all the model needs to decide the next step.
+
+            <br><br>
+
+            <strong>Why this matters:</strong><br>
+            • No sensitive UI data leaves the device<br>
+            • No screenshots or raw pixels are transmitted<br>
+            • The LLM never sees the user’s screen or apps<br>
+            • Only high‑level structural signals are shared<br>
+
+            This keeps automation safe, private, and efficient.
+
+            <br><br>
+
+            <strong>Token cost:</strong><br>
+            Because all UI detection and action sequencing run locally, the LLM only receives 
+            a short confirmation or status summary. Typical usage is <strong>10–40 tokens</strong> per 
+            action cycle, instead of the hundreds required by systems that describe the 
+            entire screen to the model.
+
+            <br><br>
+
+            Purpose: <strong>Deterministic, privacy‑preserving on‑device automation that runs 
+            locally and only sends minimal structural signals to the LLM.</strong>
+            </div>
+
+            <!-- Finance -->
+            <div class="accordion-bar cyan" data-panel="panel-finance">
+                Financial & Crypto Operations
+            </div>
+            <div id="panel-finance" class="floating-panel">
+                Handles financial and crypto workflows.<br><br>
+            Paladin’s Financial & Crypto Operations module manages portfolio analysis, 
+            liquidity checks, smart‑contract interactions, and risk‑aware decision workflows. 
+            It restructures financial intent into precise, verifiable operations that minimize 
+            errors and maintain safety across both traditional and crypto environments.
+
+            <br><br>
+
+            <strong>Core capabilities:</strong><br>
+            • Portfolio scanning across assets, accounts, and chains<br>
+            • Liquidity and solvency checks before any action is taken<br>
+            • Smart contract execution with pre‑flight validation<br>
+            • Risk mitigation logic that prevents unsafe or impulsive operations<br>
+
+            <br>
+
+            <strong>How it works:</strong><br>
+            The module collects financial signals, account states, and contract metadata, 
+            then restructures them into a clean operational model. Before any action is 
+            executed, the system performs multi‑layer validation: balance checks, allowance 
+            checks, slippage limits, contract safety checks, and scenario evaluation. This 
+            ensures that every operation is grounded, predictable, and reversible when 
+            possible.
+
+            <br><br>
+
+            <strong>How it makes fewer mistakes:</strong><br>
+            Paladin reduces financial errors by running all critical checks locally before 
+            the LLM is ever involved. The model never “guesses” about balances, contract 
+            states, or liquidity — it only receives validated structural facts. This prevents 
+            hallucinated transactions, incorrect assumptions, or unsafe contract calls.
+
+            <br><br>
+
+            <strong>How correctness is ensured:</strong><br>
+            • Pre‑flight validation for every transaction<br>
+            • Balance, allowance, and liquidity checks before execution<br>
+            • Contract metadata inspection to detect unsafe or unknown functions<br>
+            • Risk flags for volatility, slippage, or insufficient liquidity<br>
+            • Local simulation of the intended action when supported<br>
+
+            These safeguards ensure that the agent cannot execute an operation unless all 
+            conditions are satisfied and the action is structurally safe.
+
+            <br><br>
+
+            <strong>Token cost:</strong><br>
+            All financial checks, contract inspections, and risk evaluations run locally. 
+            The LLM only receives a short abstract of the validated state or the final 
+            decision summary, typically <strong>20–60 tokens</strong>. This keeps financial workflows 
+            efficient while maintaining strict safety and correctness.
+
+            <br><br>
+
+            Purpose: <strong>Safe, deterministic financial and crypto operations with built‑in 
+            risk mitigation and error‑prevention logic.</strong>
+            </div>
+
+        </div>
+
+
+        </div> <!-- end control-panel -->
+    </div> <!-- end sidebar -->
+</div> <!-- end container -->
+
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="modal hidden" style="
+    position:fixed;
+    top:20%;
+    left:50%;
+    transform:translateX(-50%);
+    background:#111;
+    padding:20px;
+    border:1px solid #333;
+    border-radius:10px;
+    width:320px;
+    z-index:200;
+    display:none;
+">
+    <h3 style="color:#3A6CFC; margin-top:0;">OpenAI API Key</h3>
+
+    <p style="color:#ccc; font-size:12px; line-height:1.4;">
+        Enter your <strong>OpenAI API key</strong> (sk‑...).<br>
+        This key is stored <strong>locally</strong> in your browser and never sent anywhere else.
+    </p>
+
+    <input id="api-key-input" type="password" placeholder="sk-..." style="
+        width:100%;
+        padding:8px;
+        margin-bottom:12px;
+        background:#222;
+        border:1px solid #444;
+        color:white;
+        border-radius:6px;
+        box-sizing:border-box;
+    ">
+
+    <div style="display:flex; justify-content:space-between;">
+        <button onclick="saveApiKey()" style="
+            background:#3A6CFC;
+            color:white;
+            border:none;
+            padding:6px 12px;
+            border-radius:6px;
+            cursor:pointer;
+        ">Save</button>
+
+        <button onclick="closeSettingsModal()" style="
+            background:#444;
+            color:white;
+            border:none;
+            padding:6px 12px;
+            border-radius:6px;
+            cursor:pointer;
+        ">Close</button>
+    </div>
+</div>
+
+
+<!-- JAVASCRIPT -->
+<script>
+/* FLOATING PANEL LOGIC */
+document.querySelectorAll(".accordion-bar").forEach(bar => {
+    bar.addEventListener("click", () => {
+        const panelId = bar.getAttribute("data-panel");
+        const panel = document.getElementById(panelId);
+
+        // Toggle visibility
+        if (panel.style.display === "block") {
+            panel.style.display = "none";
+        } else {
+            // Hide all other panels
+            document.querySelectorAll(".floating-panel")
+                .forEach(p => p.style.display = "none");
+
+            panel.style.display = "block";
+        }
+    });
+});
+
+
+
+/* ------------------------------
+   INFO ICON PINNING
+------------------------------ */
+const infoIcon = document.getElementById("lights-info");
+const tooltip = document.getElementById("main-tooltip");
+
+infoIcon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    tooltip.classList.toggle("pinned");
+});
+
+document.addEventListener("click", (e) => {
+    if (tooltip.classList.contains("pinned") && !infoIcon.contains(e.target)) {
+        tooltip.classList.remove("pinned");
+    }
+});
+
+
+/* ------------------------------
+   SETTINGS MODAL
+------------------------------ */
+document.getElementById("settings-btn").addEventListener("click", () => {
+    loadApiKeyIntoModal();
+    document.getElementById("settings-modal").style.display = "block";
+});
+
+function closeSettingsModal() {
+    document.getElementById("settings-modal").style.display = "none";
+}
+
+function saveApiKey() {
+    const key = document.getElementById("api-key-input").value.trim();
+    if (key) {
+        localStorage.setItem("openai_api_key", key);
+    }
+    closeSettingsModal();
+}
+
+function loadApiKeyIntoModal() {
+    const saved = localStorage.getItem("openai_api_key");
+    document.getElementById("api-key-input").value = saved || "";
+}
+
+
+/* ------------------------------
+   FILE UPLOAD + DELETE (UI ONLY)
+------------------------------ */
+let uploadedFiles = []; // future backend-ready
+
+function uploadFile() {
+    const input = document.getElementById("file-input");
+    if (!input.files.length) return;
+
+    const file = input.files[0];
+    const fileId = crypto.randomUUID();
+
+    uploadedFiles.push({ id: fileId, name: file.name });
+
+    addUploadedFileToList(fileId, file.name);
+}
+
+function addUploadedFileToList(id, name) {
+    const list = document.getElementById("file-list");
+
+    if (list.innerText.trim() === "(none yet)") {
+        list.innerHTML = "";
+    }
+
+    const entry = document.createElement("div");
+    entry.className = "uploaded-file-entry";
+    entry.id = "file-" + id;
+
+    entry.innerHTML = `
+        <span>• ${name}</span>
+        <span class="delete-file-btn" onclick="deleteUploadedFile('${id}')">❌</span>
+    `;
+
+    list.appendChild(entry);
+}
+
+function deleteUploadedFile(id) {
+    uploadedFiles = uploadedFiles.filter(f => f.id !== id);
+
+    const entry = document.getElementById("file-" + id);
+    if (entry) entry.remove();
+
+    // If list becomes empty
+    const list = document.getElementById("file-list");
+    if (list.children.length === 0) {
+        list.innerHTML = "(none yet)";
+    }
+
+    // Future backend deletion hook:
+    // deleteFileFromBackend(id);
+}
+</script>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
