@@ -94,7 +94,7 @@ It serves as a simple interface layer for interacting with backend logic.
 
 ### 1. Clone the repository
 
-git clone https://github.com/<your-username>/paladin-free.git
+git clone git clone https://github.com/gavingu2255-ai/paladin-free.git
 cd paladin-free
 
 Code
