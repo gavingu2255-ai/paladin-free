@@ -1,4 +1,4 @@
-# paladin-free
+# Paladin-AI-free
 
 `paladin-free` is the open-source surface of the Paladin architecture — a minimal, modular, and structurally transparent framework designed for experimentation, extension, and public-facing development. This repository intentionally exposes only the free-tier, non-sovereign layers of the broader system.
 
