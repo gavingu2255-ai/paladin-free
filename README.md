@@ -1,99 +1,149 @@
 # paladin-free
 
-`paladin-free` is the open-source surface of the Paladin system — a minimal, structurally clean, and dependency-light codebase intended for public use, experimentation, and extension. This repository deliberately exposes only the free-tier, non-sovereign layers of the broader architecture.
+`paladin-free` is the open-source surface of the Paladin architecture — a minimal, modular, and structurally transparent framework designed for experimentation, extension, and public-facing development. This repository intentionally exposes only the free-tier, non-sovereign layers of the broader system.
 
 ---
 
 ## Vision
 
-`paladin-free` is designed to be:
+`paladin-free` is built around four principles:
 
-- **Minimal** — no unnecessary dependencies or heavy runtime assumptions  
-- **Composable** — modules are meant to be rearranged or extended  
-- **Transparent** — structure is favored over cleverness  
-- **Safe** — no closed-world engines, no subjectivity simulation, no high‑risk logic  
+- **Minimalism** — no unnecessary dependencies or heavy runtime assumptions  
+- **Composability** — modules can be rearranged, extended, or embedded  
+- **Transparency** — structure is favored over cleverness or opacity  
+- **Safety** — no closed-world engines, no subjectivity simulation, no high‑risk logic  
 
-This repository is a public-facing structural surface, not the full internal world model.
-
----
-
-## What This Repository Is
-
-- A clean starting point for:
-  - structural experimentation  
-  - modular system design  
-  - building your own layers on top  
-
-- A reference implementation of Paladin-style patterns:
-  - separation of concerns  
-  - explicit boundaries  
-  - layered design  
+The goal is to provide a clean, understandable foundation without exposing sovereign or private runtime layers.
 
 ---
 
-## What This Repository Is Not
+## Repository Structure
 
-This repo intentionally excludes:
+The project is organized into clear, purpose-driven layers:
 
-- sovereign/private runtime logic  
-- closed-world reasoning engines  
-- subjectivity or “inner life” simulation  
-- irreversible structural modules  
+'''
+paladin-free/
+│
+├── backend/
+│   ├── main.py
+│   ├── personal_profile/
+│   ├── runtime/
+│   ├── shadow/
+│   └── __pycache__/
+│
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   ├── lights.js
+│   └── style.css
+│
+├── shared/
+│   └── dimension_rules.json
+│
+├── personal_profile/
+│
+├── paladin-free/
+│
+├── venv/
+│
+├── .gitignore
+├── .gitattributes
+├── Case study.txt
+└── tree.txt
+'''
 
-These belong to non-public layers.
+---
+
+## Backend Overview
+
+The backend contains several modular subsystems:
+
+- **runtime/** — core operational modules  
+  - behavior  
+  - file intelligence  
+  - knowledge  
+  - metacognition  
+  - persona  
+  - slp / stp / wgp / wlm  
+  - workflow  
+  - world simulation  
+  - llm client, orchestrator, utils, types  
+
+- **shadow/** — structural adapters and surface realizer  
+  - chat wrapper  
+  - structural memory  
+  - full memory  
+  - orchestrator  
+  - slp → wlm adapter  
+
+- **personal_profile/** — profile data and structural memory JSON  
+
+Each module is isolated and extendable, allowing developers to integrate or replace components without modifying core invariants.
+
+---
+
+## Frontend Overview
+
+The frontend is intentionally lightweight:
+
+- `index.html` — base UI  
+- `app.js` — interaction logic  
+- `lights.js` — visual effects  
+- `style.css` — styling  
+
+It serves as a simple interface layer for interacting with backend logic.
 
 ---
 
 ## Getting Started
 
-`paladin-free` does not enforce a single runtime environment. A typical workflow:
-
 ### 1. Clone the repository
 
-- Run the following commands:
-  - `git clone https://github.com/<your-username>/paladin-free.git`
-  - `cd paladin-free`
+git clone https://github.com/<your-username>/paladin-free.git
+cd paladin-free
 
-### 2. Explore the code
+Code
 
-- Start from the core modules（例如 `src/` 或你实际使用的主目录）  
-- Read comments and docstrings as structural documentation  
-- Identify extension points rather than treating the system as a black box  
+### 2. Explore the backend
 
-### 3. Integrate or extend
+- Begin with `backend/main.py`  
+- Review modules inside `backend/runtime/` and `backend/shadow/`  
+- Follow the structure rather than treating the system as a black box  
 
-- Wrap modules into your own application  
-- Add adapters, bridges, or interfaces  
-- Keep sovereign/private logic in separate layers or repositories  
+### 3. Extend or integrate
 
-(Once the directory tree is finalized, this section will be expanded with concrete paths.)
+- Add new runtime modules  
+- Create adapters or bridges  
+- Build additional frontend interfaces  
+- Keep sovereign or private logic in separate repositories  
 
 ---
 
 ## Design Principles
 
-- **Structure over behavior** — the shape of the system matters as much as what it does  
-- **Explicit boundaries** — public vs private, free vs sovereign, engine vs interface  
-- **Append‑only thinking** — prefer adding new layers over mutating core invariants  
-- **Readable over clever** — code should be understandable without hidden tricks  
+- **Structure over behavior** — the architecture is the primary artifact  
+- **Explicit boundaries** — public vs private, free vs sovereign  
+- **Append‑only evolution** — prefer adding layers over mutating invariants  
+- **Readable over clever** — clarity is prioritized over abstraction  
 
 ---
 
 ## License
 
-This repository currently does not include a finalized license file. You may later add:
+This repository currently does not include a finalized license file.  
+You may later add:
 
 - MIT  
 - Apache 2.0  
 - or a custom Paladin License  
 
-Until then, treat the code as **all rights reserved** by default.
+Until a license is added, treat the code as **all rights reserved**.
 
 ---
 
 ## Contributing
 
-Contributions are welcome, especially around:
+Contributions are welcome, especially in areas such as:
 
 - structural clarity  
 - modularity and extension points  
@@ -104,9 +154,9 @@ Contributions are welcome, especially around:
 
 ## Roadmap
 
-Planned or potential future additions:
+Potential future additions include:
 
 - clearer module boundaries and diagrams  
-- example integrations in different environments  
+- example integrations  
 - optional higher-level utilities  
 - documentation of structural patterns and anti-patterns  
