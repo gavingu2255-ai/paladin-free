@@ -21,36 +21,31 @@ The goal is to provide a clean, understandable foundation without exposing sover
 
 The project is organized into clear, purpose-driven layers:
 
-'''
-    paladin-free/
-    │
-    ├── backend/
-    │   ├── main.py
-    │   ├── personal_profile/
-    │   ├── runtime/
-    │   ├── shadow/
-    │   └── __pycache__/
-    │
-    ├── frontend/
-    │   ├── index.html
-    │   ├── app.js
-    │   ├── lights.js
-    │   └── style.css
-    │
-    ├── shared/
-    │   └── dimension_rules.json
-    │
-    ├── personal_profile/
-    │
-    ├── paladin-free/
-    │
-    ├── venv/
-    │
-    ├── .gitignore
-    ├── .gitattributes
-    ├── Case study.txt
-    └── tree.txt
-'''
+```
+paladin-free/
+├── backend/
+│   ├── main.py
+│   ├── personal_profile/
+│   ├── runtime/
+│   ├── shadow/
+│   └── __pycache__/
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   ├── lights.js
+│   └── style.css
+├── shared/
+│   └── dimension_rules.json
+├── personal_profile/
+├── paladin-free/
+├── venv/
+├── .gitignore
+├── .gitattributes
+├── Case study.txt
+└── tree.txt
+```
+
+
 
 ---
 
