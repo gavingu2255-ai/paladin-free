@@ -16,7 +16,243 @@
 The goal is to provide a clean, understandable foundation without exposing sovereign or private runtime layers.
 
 ---
+## Case Study: Layer-by-Layer Testing
+Paladin‑Free exposes a minimal but fully functional multi‑layer runtime, where each layer can be tested independently.
+This case study demonstrates how to verify each layer, which prompts to use, and what makes each layer structurally unique.
 
+### 1. SLP Layer — Structural Language Parser
+Test Prompt
+
+Code
+Describe a red ball on a wooden table.
+Expected Behavior
+
+Extracts objects: ball, table
+
+Extracts attributes: red, wooden
+
+Extracts relations: on(top_of)
+
+Why It Matters
+
+Fully deterministic
+
+No model dependency
+
+Converts any natural language into a structural graph
+
+Forms the foundation for all higher‑level reasoning
+
+### 2. WLM Layer — World Model Interpreter
+Test Prompt
+
+Code
+Where is the cat relative to the chair?
+Expected Behavior
+
+Identifies entities (cat, chair)
+
+Infers spatial relations (e.g., left_of, near, behind)
+
+Produces a structured world‑state representation
+
+Why It Matters
+
+Builds a world, not just an answer
+
+Deterministic relational inference
+
+Enables persistent reasoning across turns
+
+### 3. Knowledge Layer — Declarative Knowledge Retrieval
+Test Prompt
+
+Code
+Why does the sun shine?
+Expected Behavior
+
+Retrieves concise, factual knowledge
+
+No hallucination
+
+No stylistic inflation
+
+Why It Matters
+
+Knowledge is modular and auditable
+
+Can be replaced with your own knowledge base
+
+Ensures factual stability across the system
+
+### 4. Persona Layer — Tone & Style Filter
+Test Prompt
+
+Code
+Explain this in a friendly tone.
+Expected Behavior
+
+Content stays the same
+
+Tone changes to “friendly”
+
+No structural distortion
+
+Why It Matters
+
+Persona is a post‑processing layer
+
+Does not contaminate logic or reasoning
+
+Fully replaceable and controllable
+
+### 5. Metacognition Layer — Reasoning Transparency
+Test Prompt
+
+Code
+Explain your reasoning step by step.
+Expected Behavior
+
+Outputs a structured reasoning trace
+
+Does not reveal internal prompts
+
+Does not leak system instructions
+
+Why It Matters
+
+Transparent reasoning without chain‑of‑thought leakage
+
+Auditable and compressible
+
+Safe for production environments
+
+### 6. Behavior Layer — Action Selection
+Test Prompt
+
+Code
+What should I do next?
+Expected Behavior
+
+Provides structured next‑step options
+
+No prescriptive decisions
+
+No unsafe or overreaching suggestions
+
+Why It Matters
+
+Behavior is suggestion‑level, not decision‑level
+
+Fully controllable
+
+Ideal for agentic or semi‑agentic systems
+
+### 7. WGP Layer — World Generation Pipeline
+Test Prompt
+
+Code
+Generate a tiny imaginary world.
+Expected Behavior
+
+Produces a structured mini‑world
+
+Includes objects, relations, and rules
+
+Suitable for simulation or agent environments
+
+Why It Matters
+
+Not storytelling — world‑building
+
+Deterministic structural generation
+
+Extensible to games, agents, or simulations
+
+### Shadow Memory — Structural Memory
+Test Prompt
+
+Code
+A cat sits on a mat.
+Then:
+
+Code
+Where is the cat?
+Expected Behavior
+
+Stores world‑state
+
+Answers from structural memory, not conversation history
+
+Why It Matters
+
+Memory is world‑based, not text‑based
+
+Enables persistent reasoning
+
+Avoids hallucinated recall
+
+### Full Memory — Conversation Log
+Test Prompt
+
+Code
+Hello.
+Then:
+
+Code
+What did I just say?
+Expected Behavior
+
+Returns the last user message
+
+Does not mix with structural memory
+
+Why It Matters
+
+Clean separation of “world memory” and “chat memory”
+
+Ideal for debugging and UI layers
+
+### Surface Realizer — Final Output Layer
+Test Prompt
+
+Code
+Explain gravity.
+Expected Behavior
+
+Converts structured content into natural language
+
+Does not add new information
+
+Does not modify structure
+
+Why It Matters
+
+Output is predictable and controllable
+
+Style can be swapped without touching logic
+
+Ensures clean separation between structure and appearance
+
+### Full Pipeline Test — All Layers Combined
+Test Prompt
+
+Code
+In a friendly tone, explain how a bird flies, then generate a tiny imaginary world where the bird lives.
+Expected Behavior
+
+SLP → WLM → Knowledge → Persona → Behavior → WGP → Realizer
+
+Produces a complete structured world + readable output
+
+Why It Matters
+
+Demonstrates the entire Paladin pipeline
+
+Shows deterministic structure → appearance flow
+
+Proves Paladin‑Free is a real runtime, not a wrapper
+---
 ## Repository Structure
 
 The project is organized into clear, purpose-driven layers:
